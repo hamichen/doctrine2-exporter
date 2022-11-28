@@ -37,12 +37,17 @@ class Column extends BaseColumn
     {
         if (!$this->isIgnored()) {
             $comment = $this->getComment();
+            if (strpos($comment, "@Encrypted")) {
+                $comment = explode("@Encrypted", $comment)[0];
+            }
             $writer
                 ->write('/**')
                 ->writeIf($comment, $comment)
                 ->writeIf($this->isPrimary,
                         ' * '.$this->getTable()->getAnnotation('Id'))
                 ->write(' * '.$this->getTable()->getAnnotation('Column', $this->asAnnotation()))
+                ->writeIf($this->asEncrypted() !== null,
+                        ' * '.$this->asEncrypted())
                 ->writeIf($this->isAutoIncrement(),
                         ' * '.$this->getTable()->getAnnotation('GeneratedValue', array('strategy' => strtoupper($this->getConfig()->get(Formatter::CFG_GENERATED_VALUE_STRATEGY)))))
                 ->write(' */')
@@ -123,8 +128,28 @@ class Column extends BaseColumn
             $attributes['options'] = array('unsigned' => true);
         }
         if ($comment) {
+            if (strpos($comment, "@Encrypted")) {
+                $comment = explode("@Encrypted", $comment)[0];
+            }
             $attributes['options']['comment'] = $comment;
         }
         return $attributes;
+    }
+
+    /**
+     * @return string
+     */
+    public function asEncrypted()
+    {
+        $encrypted = null;
+        $comment = $this->getComment(false);
+        if ($comment) {
+            if (strpos($comment, "@Encrypted")) {
+                $comment = explode("@Encrypted", $comment)[1];
+                $encrypted = "@Encrypted" . $comment;
+            }
+        }
+
+        return $encrypted;
     }
 }
