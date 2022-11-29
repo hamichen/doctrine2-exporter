@@ -146,7 +146,7 @@ class Column extends BaseColumn
         if ($comment) {
             if (strpos($comment, "@Encrypted")) {
                 $comment = explode("@Encrypted", $comment)[1];
-                $encrypted = "@Encrypted" . $comment;
+                $encrypted = "@Keet\Encrypt\Annotation\Encrypted" . $comment;                
             }
         }
 
