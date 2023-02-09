@@ -37,8 +37,9 @@ class Column extends BaseColumn
     {
         if (!$this->isIgnored()) {
             $comment = $this->getComment();
-            if (strpos($comment, "@Encrypted")) {
-                $comment = explode("@Encrypted", $comment)[0];
+            $fix_comment = str_replace(['@Encrypted', '@Hashed'], '', $comment);
+            if ($fix_comment != $comment) {
+                $comment = $fix_comment;
             }
             $writer
                 ->write('/**')
@@ -48,6 +49,8 @@ class Column extends BaseColumn
                 ->write(' * '.$this->getTable()->getAnnotation('Column', $this->asAnnotation()))
                 ->writeIf($this->asEncrypted() !== null,
                         ' * '.$this->asEncrypted())
+                ->writeIf($this->asHashed() !== null,
+                        ' * '.$this->asHashed())
                 ->writeIf($this->isAutoIncrement(),
                         ' * '.$this->getTable()->getAnnotation('GeneratedValue', array('strategy' => strtoupper($this->getConfig()->get(Formatter::CFG_GENERATED_VALUE_STRATEGY)))))
                 ->write(' */')
@@ -128,8 +131,9 @@ class Column extends BaseColumn
             $attributes['options'] = array('unsigned' => true);
         }
         if ($comment) {
-            if (strpos($comment, "@Encrypted")) {
-                $comment = explode("@Encrypted", $comment)[0];
+            $fix_comment = str_replace(['@Encrypted', '@Hashed'], '', $comment);
+            if ($fix_comment != $comment) {
+                $comment = $fix_comment;
             }
             $attributes['options']['comment'] = $comment;
         }
@@ -144,12 +148,29 @@ class Column extends BaseColumn
         $encrypted = null;
         $comment = $this->getComment(false);
         if ($comment) {
-            if (strpos($comment, "@Encrypted")) {
+            if (strpos($comment, "@Encrypted") !== false) {
                 $comment = explode("@Encrypted", $comment)[1];
-                $encrypted = "@Keet\Encrypt\Annotation\Encrypted" . $comment;                
+                $encrypted = "@Keet\Encrypt\Annotation\Encrypted" . $comment;
             }
         }
 
         return $encrypted;
+    }
+
+    /**
+     * @return string
+     */
+    public function asHashed()
+    {
+        $hashed = null;
+        $comment = $this->getComment(false);
+        if ($comment) {
+            if (strpos($comment, "@Hashed") !== false) {
+                $comment = explode("@Hashed", $comment)[1];
+                $hashed = "@Keet\Encrypt\Annotation\Hashed" . $comment;
+            }
+        }
+
+        return $hashed;
     }
 }
