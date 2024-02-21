@@ -687,6 +687,11 @@ class Table extends BaseTable
             if ($this->isLocalForeignKeyIgnored($local)) {
                 continue;
             }
+            
+            if(!$local->isManyToOne()) {
+                continue;
+            }
+
             $this->getDocument()->addLog(sprintf('  Writing N <=> 1 constructor "%s"', $local->getOwningTable()->getModelName()));
 
             $related = $local->getForeignM2MRelatedName();
