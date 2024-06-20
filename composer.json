@@ -27,7 +27,7 @@
 	],
 	"require" : {
 		"php" : ">=5.4.0",
-		"hamichen/mysql-workbench-schema-exporter": "3.0.8"
+		"hamichen/mysql-workbench-schema-exporter": "3.0.5"
 	},
 	"autoload" : {
 		"psr-4" : {
